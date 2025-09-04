@@ -4,7 +4,7 @@ const { Pool } = pg.default;
 
 const connectionPool = new Pool({
   connectionString:
-    "postgresql://postgres:ChaChom2542!@localhost:5432/qna_platform",
+    "postgresql://postgres:password@localhost:5432/qna-platform",
 });
 
 export default connectionPool;
