@@ -1,16 +1,11 @@
 import { Router } from "express";
 import connectionPool from "../utils/db.mjs";
+import { validateSearchQuery } from "../middlewares/validation.mjs";
 
 const questionsSearchRouter = Router()
 
-questionsSearchRouter.get("/search", async (req, res) => {
+questionsSearchRouter.get("/search", validateSearchQuery, async (req, res) => {
     const { title, category } = req.query;
-  
-    if (!title && !category) {
-      return res.status(400).json({
-        message: "Invalid search parameters.",
-      });
-    }
   
     try {
       let query = `SELECT * FROM questions WHERE 1=1`;

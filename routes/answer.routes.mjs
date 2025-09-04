@@ -1,19 +1,15 @@
 import { Router } from "express";
 import connectionPool from "../utils/db.mjs";
+import { validateCreateAnswer } from "../middlewares/validation.mjs";
 
 const answerRouter = Router();
 
 // Create an answer for a question
-answerRouter.post("/:questionId/answers", async (req, res) => {
+answerRouter.post("/:questionId/answers", validateCreateAnswer, async (req, res) => {
   const { questionId } = req.params;
   const { content } = req.body;
 
-  if (!content) {
-    return res.status(400).json({ message: "Invalid request data." });
-  }
-
   try {
-    // ตรวจสอบว่าคำถามมีอยู่
     const questionResult = await connectionPool.query(
       "SELECT * FROM questions WHERE id = $1",
       [questionId]
@@ -23,7 +19,6 @@ answerRouter.post("/:questionId/answers", async (req, res) => {
       return res.status(404).json({ message: "Question not found." });
     }
 
-    // เพิ่มคำตอบ
     await connectionPool.query(
       "INSERT INTO answers (question_id, content) VALUES ($1, $2)",
       [questionId, content]
@@ -41,7 +36,6 @@ answerRouter.get("/:questionId/answers", async (req, res) => {
   const { questionId } = req.params;
 
   try {
-    // ตรวจสอบว่าคำถามมีอยู่
     const questionResult = await connectionPool.query(
       "SELECT * FROM questions WHERE id = $1",
       [questionId]
@@ -51,7 +45,6 @@ answerRouter.get("/:questionId/answers", async (req, res) => {
       return res.status(404).json({ message: "Question not found." });
     }
 
-    // ดึงคำตอบทั้งหมด
     const answersResult = await connectionPool.query(
       "SELECT id, content FROM answers WHERE question_id = $1",
       [questionId]
@@ -69,7 +62,6 @@ answerRouter.delete("/:questionId/answers", async (req, res) => {
   const { questionId } = req.params;
 
   try {
-    // ตรวจสอบว่าคำถามมีอยู่
     const questionResult = await connectionPool.query(
       "SELECT * FROM questions WHERE id = $1",
       [questionId]
@@ -79,7 +71,6 @@ answerRouter.delete("/:questionId/answers", async (req, res) => {
       return res.status(404).json({ message: "Question not found." });
     }
 
-    // ลบคำตอบทั้งหมด
     await connectionPool.query(
       "DELETE FROM answers WHERE question_id = $1",
       [questionId]
